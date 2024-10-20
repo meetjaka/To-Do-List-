@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Persistent To-Do List</title>
+    <link rel="icon" type="image/x-icon" href="https://cdn5.vectorstock.com/i/1000x1000/94/19/todo-list-icon-vector-44549419.jpg">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        .todo-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        #todo-input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        #add-task-btn, #clear-tasks-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        #add-task-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #clear-tasks-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .remove-task {
+            cursor: pointer;
+            color: red;
+        }
+
+        /* Media Query for responsiveness */
+        @media (max-width: 768px) {
+            .todo-container {
+                width: 90%;
+                padding: 15px;
+            }
+
+            #todo-input, #add-task-btn, #clear-tasks-btn {
+                padding: 8px;
+                font-size: 14px;
+            }
+
+            li {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                flex-direction: column;
+                justify-content: flex-start;
+                padding-top: 20px;
+            }
+
+            .todo-container {
+                width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            #todo-input, #add-task-btn, #clear-tasks-btn {
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            li {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="todo-container">
+        <h1>To-Do List</h1>
+        <input type="text" id="todo-input" placeholder="Add a new task..." />
+        <button id="add-task-btn">Add Task</button>
+        <ul id="todo-list"></ul>
+        <button id="clear-tasks-btn">Clear All Tasks</button>
+    </div>
+
+    <script>
+        
+        document.addEventListener('DOMContentLoaded', loadTasksFromLocalStorage);
+
+        document.getElementById('add-task-btn').addEventListener('click', addTask);
+
+        document.getElementById('clear-tasks-btn').addEventListener('click', clearAllTasks);
+
+        function loadTasksFromLocalStorage() {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.forEach(task => addTaskToList(task));
+        }
+        function addTask() {
+            const taskInput = document.getElementById('todo-input');
+            const task = taskInput.value.trim();
+            if (task !== '') {
+                addTaskToList(task);
+                saveTaskToLocalStorage(task);
+                taskInput.value = '';
+            }
+        }
+        function addTaskToList(task) {
+            const li = document.createElement('li');
+            li.textContent = task;
+
+            const removeBtn = document.createElement('span');
+            removeBtn.textContent = 'x';
+            removeBtn.classList.add('remove-task');
+            removeBtn.addEventListener('click', removeTask);
+
+            li.appendChild(removeBtn);
+            document.getElementById('todo-list').appendChild(li);
+        }
+        function saveTaskToLocalStorage(task) {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks.push(task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        function removeTask(e) {
+            const taskToRemove = e.target.parentElement;
+            const taskText = taskToRemove.textContent.slice(0, -1); 
+
+            taskToRemove.remove();
+            removeTaskFromLocalStorage(taskText);
+        }
+        function removeTaskFromLocalStorage(task) {
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            tasks = tasks.filter(t => t !== task);
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+        function clearAllTasks() {
+            document.getElementById('todo-list').innerHTML = '';
+            localStorage.removeItem('tasks');
+        }
+    </script>
+</body>
+</html>
